@@ -7,7 +7,7 @@ build/
 .eggs/
 .venv/
 venv/
-*.env/
+*.env
 *.egg
 *.whl
 .coverage
