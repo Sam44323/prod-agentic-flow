@@ -1,6 +1,6 @@
 # prod-agentic-flow
 
-Agentic-workflow production in tooling.
+Agentic-workflow production for the tooling.
 
 ## Stack
 
