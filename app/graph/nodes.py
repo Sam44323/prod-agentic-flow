@@ -9,7 +9,7 @@ def llm_node(state: AgentState) -> AgentState:
 
     response = llm.invoke(state["user_input"])
 
-    state["final_answer"] = response.content
+    state["final_answer"] = str(response.content)
     print("exiting the llm_node")
 
     return state

@@ -9,6 +9,7 @@ router = APIRouter()
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
 
+    # NOTE: in this invoke() initial dict keys must match AgentState keys overall exactly:
     result = graph.invoke({"user_input": request.message, "final_answer": ""})
 
     return ChatResponse(answer=result["final_answer"])

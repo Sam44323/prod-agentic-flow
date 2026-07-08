@@ -4,6 +4,9 @@ from app.graph.state import AgentState
 from app.graph.nodes import llm_node, calculator_node
 from app.graph.router import router
 
+
+# LangGraph overall automatically passes the AgentState to the nodes
+
 # This is telling lang-graph that every node in the flow would be using the AgentState
 graph = StateGraph(AgentState)
 
