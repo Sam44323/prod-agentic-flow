@@ -52,5 +52,6 @@ See `requirements.txt` for full list. Key deps:
 - ollama, langchain-ollama — LLM integration
 - httpx, aiohttp — HTTP client
 - pydantic — data validation
+- pytest - testing
 - SQLAlchemy — database
 - python-dotenv — env config
