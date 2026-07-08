@@ -17,7 +17,7 @@ def llm_node(state: AgentState) -> AgentState:
     return state
 
 
-# Calculator-Node for evaluating the expression
+# Calculator-node for evaluating the expression
 def calculator_node(state: AgentState) -> AgentState:
     expression = state["user_input"]
     state["tool_name"] = "calculator"
@@ -36,6 +36,7 @@ def calculator_node(state: AgentState) -> AgentState:
     return state
 
 
+# Weather-node for fetching the weathers
 def weather_node(state: AgentState) -> AgentState:
     state["tool_name"] = "weather"
     # just hardcoding for now
