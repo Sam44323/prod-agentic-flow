@@ -28,7 +28,7 @@ def calculator_node(state: AgentState) -> AgentState:
         state["tool_output"] = state["final_answer"]
         state["error"] = ""
     except Exception as e:
-        state["error"] = str(e)
+        state["error"] = e  # type: ignore
         state["tool_output"] = state["final_answer"]
         state["final_answer"] = "Invalid expression."
 
