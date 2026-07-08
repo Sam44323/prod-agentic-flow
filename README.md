@@ -32,6 +32,7 @@ tests/             # Unit & integration tests
 docker/            # Container config
 .env               # Environment vars
 requirements.txt   # Python deps
+pyrightconfig.json # Pyright-config
 ```
 
 ## Packages
