@@ -4,6 +4,7 @@ from app.graph.graph import app
 def test_graph():
     state = {
         "user_input": "2+2",
+        "messages": [],
         "tool_name": "",
         "tool_input": "",
         "tool_output": "",

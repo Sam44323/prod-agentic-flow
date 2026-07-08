@@ -9,8 +9,13 @@ def llm_node(state: AgentState) -> AgentState:
     llm = get_llm()
     print(state)
 
+    messages = state.get("messages", [])
+    messages.append({"role": "user", "content": state["user_input"]})
+
     response = llm.invoke(state["user_input"])
 
+    messages.append({"role": "assistant", "content": response.content})
+    state["messages"] = messages
     state["final_answer"] = str(response.content)
     print("exiting the llm_node")
 
@@ -23,12 +28,19 @@ def calculator_node(state: AgentState) -> AgentState:
     state["tool_name"] = "calculator"
     state["tool_input"] = expression
 
+    messages = state.get("messages", [])
+    messages.append({"role": "user", "content": expression})
+
     # try to evaluate the expression based on the input if routed by the router
     try:
+        messages.append({"role": "assistant", "content": calculator(expression)})
+        state["messages"] = messages
         state["final_answer"] = calculator(expression)
         state["tool_output"] = state["final_answer"]
         state["error"] = ""
     except Exception as e:
+        messages.append({"role": "assistant", "content": str(e)})
+        state["messages"] = messages
         state["error"] = e  # type: ignore
         state["tool_output"] = state["final_answer"]
         state["final_answer"] = "Invalid expression."
@@ -42,19 +54,26 @@ def weather_node(state: AgentState) -> AgentState:
     # just hardcoding for now
     state["tool_input"] = "Lond"
 
+    messages = state.get("messages", [])
+    messages.append({"role": "user", "content": "Weather in Lond"})
+
     try:
         result = get_weather(
             latitude=51.5074,
             longitude=-0.1278,
         )
 
+        messages.append({"role": "assistant", "content": result})
         state["tool_output"] = result
         state["final_answer"] = result
+        state["messages"] = messages
         state["error"] = ""
 
     except Exception as e:
         state["tool_output"] = ""
         state["error"] = str(e)
+        messages.append({"role": "assistant", "content": f"Weather Tool Error: {e}"})
+        state["messages"] = messages
         state["final_answer"] = f"Weather Tool Error: {e}"
 
     return state
