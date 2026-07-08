@@ -35,6 +35,14 @@ requirements.txt   # Python deps
 pyrightconfig.json # Pyright-config
 ```
 
+## Run
+
+```bash
+uvicorn app.main:app --reload
+```
+
+The api server starts at `http://localhost:8000`. Open Swagger UI at `http://localhost:8000/docs` to test `/chat` endpoint from browser.
+
 ## Packages
 
 See `requirements.txt` for full list. Key deps:
