@@ -1,5 +1,5 @@
 from app.graph.state import AgentState
-from app.llm.qwen import get_llm, generate
+from app.llm.qwen import generate
 from langchain_core.messages import HumanMessage, AIMessage
 from app.tools.calculator import calculator
 from app.tools.weather import get_weather
@@ -7,7 +7,6 @@ from app.tools.weather import get_weather
 
 # LLM-Node for query and response with the language-model
 def llm_node(state: AgentState) -> AgentState:
-    llm = get_llm()
     print(state)
 
     messages = state.get("messages", [])
@@ -34,21 +33,22 @@ def calculator_node(state: AgentState) -> AgentState:
 
     messages = state.get("messages", [])
     messages.append(
-        HumanMessage(content=f"Evaluating the expression: {expression}"),
+        HumanMessage(content=f"{expression}"),
     )
 
     # try to evaluate the expression based on the input if routed by the router
     try:
+        response = calculator(expression)
         messages.append(
-            AIMessage(content=f"Evaluating the expression: {expression}"),
+            AIMessage(content=f"{response}"),
         )
         state["messages"] = messages
-        state["final_answer"] = calculator(expression)
+        state["final_answer"] = response
         state["tool_output"] = state["final_answer"]
         state["error"] = ""
     except Exception as e:
         messages.append(
-            AIMessage(content=f"Error evaluating the expression: {expression}"),
+            AIMessage(content=f"{expression}"),
         )
         state["messages"] = messages
         state["error"] = e  # type: ignore
@@ -66,7 +66,7 @@ def weather_node(state: AgentState) -> AgentState:
 
     messages = state.get("messages", [])
     messages.append(
-        HumanMessage(content=f"Fetching the weather for {state['tool_input']}"),
+        HumanMessage(content=f"{state['tool_input']}"),
     )
 
     try:
@@ -76,7 +76,7 @@ def weather_node(state: AgentState) -> AgentState:
         )
 
         messages.append(
-            AIMessage(content=f"Fetching the weather for {state['tool_input']}"),
+            AIMessage(content=f"{input}"),
         )
         state["tool_output"] = result
         state["final_answer"] = result
@@ -87,7 +87,7 @@ def weather_node(state: AgentState) -> AgentState:
         state["tool_output"] = ""
         state["error"] = str(e)
         messages.append(
-            AIMessage(content=f"Error fetching the weather for {state['tool_input']}"),
+            HumanMessage(content=f"{e}"),
         )
         state["messages"] = messages
         state["final_answer"] = f"Weather Tool Error: {e}"
