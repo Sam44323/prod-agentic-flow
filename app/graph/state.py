@@ -6,7 +6,7 @@ from langchain_core.messages import BaseMessage
 class AgentState(TypedDict):
     user_input: str
 
-    # conversation-history
+    # conversation-history for the state
     messages: list[BaseMessage]
 
     # tool-states
