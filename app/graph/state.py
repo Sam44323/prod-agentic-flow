@@ -1,4 +1,5 @@
 from typing import TypedDict
+from langchain_core.messages import BaseMessage
 
 
 # TypedDict is a way to define a dictionary with a specific set of keys and types
@@ -6,7 +7,7 @@ class AgentState(TypedDict):
     user_input: str
 
     # conversation-history
-    messages: list
+    messages: list[BaseMessage]
 
     # tool-states
     tool_name: str
