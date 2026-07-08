@@ -19,7 +19,7 @@ def llm_node(state: AgentState) -> AgentState:
 
     messages.append(AIMessage(content=response))
     state["messages"] = messages
-    state["final_answer"] = str(response)
+    state["final_answer"] = response
     print("exiting the llm_node")
 
     return state
@@ -76,7 +76,7 @@ def weather_node(state: AgentState) -> AgentState:
         )
 
         messages.append(
-            AIMessage(content=f"{input}"),
+            AIMessage(content=f"{result}"),
         )
         state["tool_output"] = result
         state["final_answer"] = result
@@ -87,7 +87,7 @@ def weather_node(state: AgentState) -> AgentState:
         state["tool_output"] = ""
         state["error"] = str(e)
         messages.append(
-            HumanMessage(content=f"{e}"),
+            AIMessage(content=f"{e}"),
         )
         state["messages"] = messages
         state["final_answer"] = f"Weather Tool Error: {e}"
