@@ -40,7 +40,7 @@ def calculator_node(state: AgentState) -> AgentState:
 def weather_node(state: AgentState) -> AgentState:
     state["tool_name"] = "weather"
     # just hardcoding for now
-    state["tool_input"] = "London"
+    state["tool_input"] = "Lond"
 
     try:
         result = get_weather(
