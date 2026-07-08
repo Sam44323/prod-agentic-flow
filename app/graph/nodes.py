@@ -15,6 +15,7 @@ def llm_node(state: AgentState) -> AgentState:
     return state
 
 
+# Calculator-Node for evaluating the expression
 def calculator_node(state: AgentState) -> AgentState:
     expression = state["user_input"]
 
