@@ -19,11 +19,15 @@ def llm_node(state: AgentState) -> AgentState:
 # Calculator-Node for evaluating the expression
 def calculator_node(state: AgentState) -> AgentState:
     expression = state["user_input"]
+    state["tool_name"] = "calculator"
+    state["tool_input"] = expression
 
     # try to evaluate the expression based on the input if routed by the router
     try:
         state["final_answer"] = calculator(expression)
+        state["tool_output"] = state["final_answer"]
     except Exception:
         state["final_answer"] = "Invalid expression."
+        state["tool_output"] = state["final_answer"]
 
     return state
