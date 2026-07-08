@@ -1,6 +1,6 @@
 from langgraph.graph import END, START, StateGraph
 
-from app.graph.nodes import calculator_node, llm_node
+from app.graph.nodes import calculator_node, llm_node, weather_node
 from app.graph.router import route
 from app.graph.state import AgentState
 
@@ -12,6 +12,7 @@ graph = StateGraph(AgentState)
 # nodes for wrking
 graph.add_node("llm", llm_node)
 graph.add_node("calculator", calculator_node)
+graph.add_node("weather", weather_node)
 
 # defining the flow
 # Flow diagram:
@@ -29,6 +30,7 @@ graph.add_conditional_edges(
     {
         "calculator": "calculator",
         "llm": "llm",
+        "weather": "weather",
     },  # this is not needed here as return-values are same-name to nodes but just in-case
 )
 
