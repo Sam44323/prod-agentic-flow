@@ -1,14 +1,18 @@
+import re
+
 from app.graph.state import AgentState
 
 
-# routing the flow based on the user-input
-def router(state: AgentState):
-    print("Routing...")
-    query = state["user_input"]
+def route(state: AgentState) -> str:
+    """
+    Decide which node should execute next.
+    """
 
-    if "+" in query:
-        print("routing to calculator")
+    user_input = state["user_input"].strip().lower()
+
+    # Simple math-detection
+    if re.fullmatch(r"[0-9+\-*/().\s]+", user_input):
         return "calculator"
 
-    print("routing to llm")
     return "llm"
+

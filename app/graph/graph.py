@@ -1,9 +1,8 @@
-from langgraph.graph import StateGraph, START, END
+from langgraph.graph import END, START, StateGraph
 
+from app.graph.nodes import calculator_node, llm_node
+from app.graph.router import route
 from app.graph.state import AgentState
-from app.graph.nodes import llm_node, calculator_node
-from app.graph.router import router
-
 
 # LangGraph overall automatically passes the AgentState to the nodes
 
@@ -26,7 +25,7 @@ graph.add_node("calculator", calculator_node)
 # mapping its return-value ("llm"/"calculator") to actual node names
 graph.add_conditional_edges(
     START,
-    router,
+    route,
     {
         "calculator": "calculator",
         "llm": "llm",
