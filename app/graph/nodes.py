@@ -1,5 +1,6 @@
 from app.graph.state import AgentState
 from app.llm.qwen import get_llm
+from app.tools.calculator import calculator
 
 
 # LLM-Node for query and response with the language-model
@@ -21,7 +22,7 @@ def calculator_node(state: AgentState) -> AgentState:
 
     # try to evaluate the expression based on the input if routed by the router
     try:
-        state["final_answer"] = str(eval(expression))  # would be replaced on later
+        state["final_answer"] = calculator(expression)
     except Exception:
         state["final_answer"] = "Invalid expression."
 
