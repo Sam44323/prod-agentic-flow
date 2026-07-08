@@ -1,3 +1,5 @@
+# session-memory is a memory that stores the conversation history for a session
+
 from app.memory.sqlite_memory import SQLiteMemory
 
 memory = SQLiteMemory()
