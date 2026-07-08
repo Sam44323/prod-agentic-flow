@@ -5,6 +5,9 @@ from typing import TypedDict
 class AgentState(TypedDict):
     user_input: str
 
+    # conversation-history
+    messages: list
+
     # tool-states
     tool_name: str
     tool_input: str
