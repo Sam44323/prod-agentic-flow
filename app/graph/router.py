@@ -14,7 +14,10 @@ def route(state: AgentState) -> str:
     if re.fullmatch(r"[0-9+\-*/().\s]+", user_input):
         return "calculator"
 
+    # Weather-text detection
     if "weather" in user_input:
         return "weather"
+
+    # SQL-text detection
 
     return "llm"
