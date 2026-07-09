@@ -1,8 +1,13 @@
 from app.graph.state import AgentState
 from app.llm.qwen import generate
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from app.tools.calculator import calculator
 from app.tools.weather import get_weather
+from app.memory.fact_extractor import extract_facts
+from app.memory.semantic_memory import SemanticMemory
+
+
+semantic_memory = SemanticMemory()
 
 
 # LLM-Node for query and response with the language-model
@@ -14,6 +19,32 @@ def llm_node(state: AgentState) -> AgentState:
     messages.append(
         HumanMessage(content=state["user_input"]),
     )
+
+    # extracting the facts from the user-input
+    facts = extract_facts(state["user_input"])
+
+    session_id = "default"  # Will become dynamic overall later
+
+    for key, value in facts.items():
+        semantic_memory.save_fact(
+            session_id=session_id,
+            key=key,
+            value=value,
+        )
+
+    # retrieving the facts from the semantic-memory
+    session_id = "default"
+
+    facts = semantic_memory.get_all_facts(session_id)
+
+    # adding the facts to the context
+    if facts:
+        memory_context = "\n".join(f"{key}: {value}" for key, value in facts.items())
+
+        messages.insert(
+            0,
+            SystemMessage(content=f"Known facts about the user:\n{memory_context}"),
+        )
 
     response = generate(messages)
 
