@@ -11,28 +11,44 @@ Agentic workflow production tooling. Qwen-3:4B agent orchestrated via LangGraph,
 
 ```
 app/
-├── api/            # FastAPI-routes
-├── graph/          # LangGraph (state, nodes, edges)
-├── llm/            # Qwen/Ollama wrapper
-├── tools/          # REST, SQL, GitHub, Python, etc.
-├── rag/            # Loaders, chunking, embeddings, retrieval
-├── memory/         # The Short & long-term memory
-├── guardrails/     # Input/output validation
-├── checkpoints/    # Durable execution
-├── prompts/        # System & task prompts
-├── models/         # Pydantic schemas
-├── services/       # Biz-logic
-├── utils/          # Shared utilities
+├── api/                # FastAPI routes & request/response models
+│   ├── models.py
+│   └── routes.py
+├── graph/
+│   ├── node/           # Specialised sub-nodes (planner, etc.)
+│   │   ├── __init__.py
+│   │   └── planner.py
+│   ├── graph.py        # LangGraph flow definition & edges
+│   ├── nodes.py        # Node handlers (llm, calculator, weather, guardrail, etc.)
+│   ├── router.py       # Conditional-routing functions
+│   └── state.py        # AgentState TypedDict
+├── guardrails/
+│   └── policy_engine.py  # Input/output/tool-authorization policies
+├── llm/
+│   └── qwen.py         # Qwen-3:4B via Ollama wrapper
+├── memory/
+│   ├── fact_extractor.py
+│   ├── semantic_memory.py
+│   ├── session_memory.py
+│   └── sqlite_memory.py
+├── tools/
+│   ├── calculator.py
+│   ├── database.py
+│   ├── executor.py
+│   ├── registry.py
+│   └── weather.py
 ├── config.py
 └── main.py
 
-knowledge-base/    # Docs for RAG
-data/              # SQLite/ChromaDB storage
-tests/             # Unit & integration tests
-docker/            # Container config
-.env               # Environment vars
-requirements.txt   # Python deps
-pyrightconfig.json # Pyright-config
+tests/
+├── test_calculator.py
+├── test_graph.py
+├── test_guardrails.py
+├── test_node.py
+└── test_router.py
+pyproject.toml
+pyrightconfig.json
+requirements.txt
 ```
 
 ## Build
