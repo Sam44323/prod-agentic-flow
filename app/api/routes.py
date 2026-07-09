@@ -2,8 +2,9 @@ from fastapi import APIRouter
 import uuid
 
 from langchain_core.runnables import RunnableConfig
+from langgraph.types import Command
 
-from app.api.models import ChatRequest, ChatResponse
+from app.api.models import ChatRequest, ChatResponse, ApprovalRequest
 from app.graph.graph import app as graph
 from app.graph.state import AgentState  # wherever AgentState is defined
 
@@ -36,5 +37,33 @@ def chat(request: ChatRequest):
     # in this we are thread_id to every execution so that we can use it a reference for resuming
     result = graph.invoke(initial_state, config=config)
 
+    if "__interrupt__" in result:
+        interrupt = result["__interrupt__"][0]
+
+        return ChatResponse(
+            approval_required=True,
+            thread_id=thread_id,
+            approval_message=interrupt.value["message"],
+            approval_reason=interrupt.value["reason"],
+        )
+
     return ChatResponse(answer=result["final_answer"])
 
+
+# route for the approval and resuming the graph
+@router.post("/approve", response_model=ChatResponse)
+def approve(request: ApprovalRequest):
+    config: RunnableConfig = {
+        "configurable": {
+            "thread_id": request.thread_id,
+        }
+    }
+
+    result = graph.invoke(
+        Command(resume=request.approved),
+        config=config,
+    )
+
+    return ChatResponse(
+        answer=result["final_answer"],
+    )
