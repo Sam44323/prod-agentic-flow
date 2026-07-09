@@ -34,7 +34,7 @@ class AgentState(TypedDict):
     # running-state for outputs
     final_answer: str
 
-    # retrieval
+    # retrieval-state
     planner_action: str  # what the planner decided (answer, retrieve, etc.)
     rewritten_query: str  # query post rewriting
     retreived_documents: list[str]  # documents retrieved
