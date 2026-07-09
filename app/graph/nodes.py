@@ -1,4 +1,5 @@
 from app.graph.state import AgentState
+from langgraph.types import interrupt
 from app.llm.qwen import generate
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from app.tools.calculator import calculator
@@ -123,4 +124,20 @@ def weather_node(state: AgentState) -> AgentState:
         state["messages"] = messages
         state["final_answer"] = f"Weather Tool Error: {e}"
 
+    return state
+
+
+# Interruption-node for handling the interruption options
+def approval_node(state: AgentState) -> AgentState:
+    # when interrupt is invoked, langgraph saves the checkpoint
+    # execution pauses overall and waits for the interruption
+    # and once done with the interruption, it resumes the execution
+    approved = interrupt(
+        {
+            "message": "Approve this action?",
+            "reason": state.get("approval_reason", ""),
+        }
+    )
+
+    state["approval_granted"] = approved
     return state

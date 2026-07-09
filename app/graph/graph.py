@@ -9,6 +9,7 @@ from app.graph.state import AgentState
 # checkpointer: for saving the graph-state which can be used to continue the flow (with things like HITL)
 conn = sqlite3.connect("data/checkpoints.db", check_same_thread=False)
 checkpointer = SqliteSaver(conn)
+
 # LangGraph overall automatically passes the AgentState to the nodes
 
 # This is telling lang-graph that every node in the flow would be using the AgentState

@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import Optional, TypedDict
 from langchain_core.messages import BaseMessage
 
 
@@ -14,6 +14,11 @@ class AgentState(TypedDict):
     tool_input: str
     tool_output: str
     error: str
+
+    # interruption-state
+    approval_required: bool
+    approval_granted: Optional[bool]
+    approval_reason: str
 
     # running-state for outputs
     final_answer: str
