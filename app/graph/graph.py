@@ -2,8 +2,15 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.checkpoint.sqlite import SqliteSaver
 import sqlite3
 
-from app.graph.nodes import calculator_node, llm_node, weather_node
-from app.graph.router import route
+from app.graph.nodes import (
+    calculator_node,
+    llm_node,
+    post_approval_route,
+    weather_node,
+    approval_node,
+    calculator_request_node,
+)
+from app.graph.router import route, approval_route
 from app.graph.state import AgentState
 
 # checkpointer: for saving the graph-state which can be used to continue the flow (with things like HITL)
@@ -19,30 +26,59 @@ graph = StateGraph(AgentState)
 graph.add_node("llm", llm_node)
 graph.add_node("calculator", calculator_node)
 graph.add_node("weather", weather_node)
+graph.add_node("approval", approval_node)
+graph.add_node("calculator_request", calculator_request_node)
 
-# defining the flow
-# Flow diagram:
-#   START ──→ router ──┬──→ llm ──→ END
-#                      │
-#                      └──→ calculator ──→ END
-#
-# Router: "+" in input → calculator, else → llm
+# ── Flow ──────────────────────────────────────────────
+#   START
+#     │
+#     ▼ route()
+#     ├── "llm" ────────────────────────────────────► llm_node ──► END
+#     ├── "weather" ─────────────────────────────────► weather_node ──► END
+#     └── "calculator_request"
+#           │
+#           ▼ approval_route()
+#           ├── "approval" ──► approval_node
+#           │                      │
+#           │                      ▼ post_approval_route()
+#           │                      ├── "calculator" ──► calculator_node ──► END
+#           │                      └── END
+#           └── "execute" ──► calculator_node ──► END
 
-# conditional-edges: route from START, using router() to decide,
-# mapping its return-value ("llm"/"calculator") to actual node names
+# START → route() dispatches to llm / weather / calculator_request
 graph.add_conditional_edges(
     START,
     route,
     {
-        "calculator": "calculator",
+        "calculator_request": "calculator_request",
         "llm": "llm",
         "weather": "weather",
-    },  # this is not needed here as return-values are same-name to nodes but just in-case
+    },
 )
-
+# calculator_request → approval_route(): skip approval or pause for HITL
+graph.add_conditional_edges(
+    "calculator_request",
+    approval_route,
+    {
+        "approval": "approval",
+        "execute": "calculator",
+    },
+)
+# approval → post_approval_route(): proceed or cancel based on user's answer
+graph.add_conditional_edges(
+    "approval",
+    post_approval_route,
+    {
+        "calculator": "calculator",
+        END: END,
+    },
+)
+# terminal edges
 graph.add_edge("llm", END)
+graph.add_edge("weather", END)
 graph.add_edge("calculator", END)
 
 
 # compiling the graph
 app = graph.compile(checkpointer=checkpointer)
+

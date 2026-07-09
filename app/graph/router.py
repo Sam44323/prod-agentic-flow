@@ -12,13 +12,16 @@ def route(state: AgentState) -> str:
 
     # Simple math-detection
     if re.fullmatch(r"[0-9+\-*/().\s]+", user_input):
-        return "calculator"
+        return "calculator_request"
 
     # Weather-text detection
     if "weather" in user_input:
         return "weather"
 
-    # SQL-text detection
-
     return "llm"
 
+
+def approval_route(state: AgentState) -> str:
+    if state.get("approval_required", False):
+        return "approval"
+    return "calculator"

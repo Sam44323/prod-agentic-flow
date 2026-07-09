@@ -6,6 +6,7 @@ from app.tools.calculator import calculator
 from app.tools.weather import get_weather
 from app.memory.fact_extractor import extract_facts
 from app.memory.semantic_memory import SemanticMemory
+from langgraph.graph import END
 
 
 semantic_memory = SemanticMemory()
@@ -141,3 +142,23 @@ def approval_node(state: AgentState) -> AgentState:
 
     state["approval_granted"] = approved
     return state
+
+
+def calculator_request_node(state: AgentState) -> AgentState:
+    expression = state["user_input"]
+
+    state["tool_name"] = "calculator"
+    state["tool_input"] = expression
+
+    # For demo purposes, always require approval.
+    # Later this can depend on risk, user role, etc.
+    state["approval_required"] = True
+    state["approval_reason"] = f"Execute calculator: {expression}"
+
+    return state
+
+
+def post_approval_route(state: AgentState) -> str:
+    if state["approval_granted"]:
+        return "calculator"
+    return END
