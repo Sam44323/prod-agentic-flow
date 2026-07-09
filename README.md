@@ -15,11 +15,23 @@ app/
 │   ├── models.py
 │   └── routes.py
 ├── graph/
-│   ├── node/           # Specialised sub-nodes (planner, etc.)
-│   │   ├── __init__.py
-│   │   └── planner.py
+│   ├── node/           # One file per node handler
+│   │   ├── approval.py
+│   │   ├── calculator.py
+│   │   ├── calculator_request.py
+│   │   ├── guardrail.py
+│   │   ├── guardrail_response.py
+│   │   ├── llm.py
+│   │   ├── output_error.py
+│   │   ├── output_guardrail.py
+│   │   ├── planner.py
+│   │   ├── post_approval_route.py
+│   │   ├── query_rewritter.py
+│   │   ├── retriever.py
+│   │   ├── tool_authorization.py
+│   │   └── weather.py
 │   ├── graph.py        # LangGraph flow definition & edges
-│   ├── nodes.py        # Node handlers (llm, calculator, weather, guardrail, etc.)
+│   ├── nodes.py        # Re-exports from node/ (backwards compat)
 │   ├── router.py       # Conditional-routing functions
 │   └── state.py        # AgentState TypedDict
 ├── guardrails/
