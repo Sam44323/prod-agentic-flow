@@ -29,14 +29,16 @@ class AgentState(TypedDict):
     output_validation_reason: str
 
     # authorized-guard
-    tooL_authorized: NotRequired[bool]
+    tool_authorized: NotRequired[bool]
     tool_authorization_reason: NotRequired[str]
     # running-state for outputs
     final_answer: str
 
     # retrieval-state
-    planner_action: str  # what the planner decided (answer, retrieve, etc.)
-    rewritten_query: str  # query post rewriting
-    retreived_documents: list[str]  # documents retrieved
-    retrieval_attemps: int  # number of attempts
-    retrieval_success: bool  # whether the retrieval was successful
+    planner_action: NotRequired[
+        str
+    ]  # what the planner decided (answer, retrieve, etc.)
+    rewritten_query: NotRequired[str]  # query post rewriting
+    retrieved_documents: NotRequired[list[str]]  # documents retrieved
+    retrieval_attempts: NotRequired[int]  # number of attempts
+    retrieval_success: NotRequired[bool]  # whether the retrieval was successful

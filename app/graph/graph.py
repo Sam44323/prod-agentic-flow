@@ -15,6 +15,7 @@ from app.graph.nodes import (
     post_approval_route,
     weather_node,
 )
+from app.graph.node.planner import planner_node
 from app.graph.router import approval_route, guardrail_router, route, output_router
 from app.graph.state import AgentState
 
@@ -28,6 +29,7 @@ checkpointer = SqliteSaver(conn)
 graph = StateGraph(AgentState)
 
 # nodes for wrking
+graph.add_node("planner", planner_node)
 graph.add_node("llm", llm_node)
 graph.add_node("calculator", calculator_node)
 graph.add_node("weather", weather_node)
