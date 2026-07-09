@@ -10,49 +10,11 @@ from app.api.models import AgentResponse
 from app.memory.semantic_memory import SemanticMemory
 from langgraph.graph import END
 from app.tools.executor import execute_tool
+from app.guardrails.policy_engine import PolicyEngine
 
 
 semantic_memory = SemanticMemory()
-
-
-SUSPICIOUS_PATTERNS = [
-    "ignore previous instructions",
-    "ignore all previous instructions",
-    "system prompt",
-    "reveal your prompt",
-    "developer message",
-    "repeat your instructions",
-]
-
-ALLOWED_TOOLS = {
-    "calculator",
-    "weather",
-}
-
-
-def authorize_tool(tool_name: str) -> tuple[bool, str]:
-    if tool_name not in ALLOWED_TOOLS:
-        return False, f"{tool_name} is not permitted."
-
-    return True, ""
-
-
-def is_suspicious_prompt(message: str) -> tuple[bool, str]:
-    text = message.lower()
-
-    for pattern in SUSPICIOUS_PATTERNS:
-        if pattern in text:
-            return True, f"Matched pattern: {pattern}"
-
-    return False, ""
-
-
-def validate_output(text: str) -> tuple[bool, str]:
-    try:
-        AgentResponse(answer=text)
-        return True, ""
-    except ValidationError as e:
-        return False, str(e)
+policy_engine = PolicyEngine()
 
 
 # LLM-Node for query and response with the language-model
@@ -210,7 +172,7 @@ def post_approval_route(state: AgentState) -> str:
 def guardrail_node(state: AgentState) -> AgentState:
     message = state["user_input"]
 
-    blocked, reason = is_suspicious_prompt(str(message))
+    blocked, reason = policy_engine.validate_input(str(message))
 
     state["guardrail_passed"] = not blocked
     state["guardrail_reason"] = reason
@@ -235,7 +197,7 @@ def guardrail_response_node(state: AgentState) -> AgentState:
 def output_guardrail_node(state: AgentState) -> AgentState:
     response = state["messages"][-1].content
 
-    valid, reason = validate_output(str(response))
+    valid, reason = policy_engine.validate_output(str(response))
 
     state["output_valid"] = valid
     state["output_validation_reason"] = reason
@@ -254,7 +216,7 @@ def output_error_node(state: AgentState) -> AgentState:
 def tool_authorization_node(state: AgentState) -> AgentState:
     tool = state.get("tool_name")
 
-    authorized, reason = authorize_tool(tool)
+    authorized, reason = policy_engine.authorize_tool(tool)
 
     state["tool_authorization"] = authorized
     state["tool_authorization_reason"] = reason
