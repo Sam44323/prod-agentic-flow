@@ -1,17 +1,19 @@
-from langgraph.graph import END, START, StateGraph
-from langgraph.checkpoint.sqlite import SqliteSaver
 import sqlite3
 
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.graph import END, START, StateGraph
+
 from app.graph.nodes import (
+    approval_node,
     calculator_node,
+    calculator_request_node,
+    guardrail_node,
+    guardrail_response_node,
     llm_node,
     post_approval_route,
-    guardrail_node,
     weather_node,
-    approval_node,
-    calculator_request_node,
 )
-from app.graph.router import route, approval_route, guardrail_router
+from app.graph.router import approval_route, guardrail_router, route
 from app.graph.state import AgentState
 
 # checkpointer: for saving the graph-state which can be used to continue the flow (with things like HITL)
@@ -30,6 +32,7 @@ graph.add_node("weather", weather_node)
 graph.add_node("approval", approval_node)
 graph.add_node("calculator_request", calculator_request_node)
 graph.add_node("guardrail", guardrail_node)
+graph.add_node("guardrail_response", guardrail_response_node)
 
 # ── Flow ──────────────────────────────────────────────
 #   START
@@ -55,9 +58,11 @@ graph.add_conditional_edges(
     guardrail_router,
     {
         "route": "route",
-        "__end__": END,
+        "guardrail_response": "guardrail_response",
     },
 )
+
+graph.add_edge("guardrail_response", END)
 
 
 graph.add_conditional_edges(

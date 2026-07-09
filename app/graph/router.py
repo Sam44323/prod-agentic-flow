@@ -30,8 +30,8 @@ def approval_route(state: AgentState) -> str:
 
 def guardrail_router(
     state: AgentState,
-) -> Literal["route", "__end__"]:
+) -> Literal["route", "guardrail_response"]:
     if state["guardrail_passed"]:
         return "route"
 
-    return "__end__"
+    return "guardrail_response"
