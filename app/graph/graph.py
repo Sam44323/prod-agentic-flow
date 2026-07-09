@@ -3,20 +3,18 @@ import sqlite3
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
 
-from app.graph.nodes import (
-    approval_node,
-    calculator_node,
-    calculator_request_node,
-    guardrail_node,
-    output_error_node,
-    output_guardrail_node,
-    guardrail_response_node,
-    llm_node,
-    post_approval_route,
-    weather_node,
-)
+from app.graph.node.approval import approval_node
+from app.graph.node.calculator import calculator_node
+from app.graph.node.calculator_request import calculator_request_node
+from app.graph.node.guardrail import guardrail_node
+from app.graph.node.guardrail_response import guardrail_response_node
+from app.graph.node.llm import llm_node
+from app.graph.node.output_error import output_error_node
+from app.graph.node.output_guardrail import output_guardrail_node
 from app.graph.node.planner import planner_node
+from app.graph.node.post_approval_route import post_approval_route
 from app.graph.node.retriever import retriever_node
+from app.graph.node.weather import weather_node
 from app.graph.router import (
     approval_route,
     guardrail_router,
