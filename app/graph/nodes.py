@@ -198,7 +198,7 @@ def post_approval_route(state: AgentState) -> str:
 
 # Guardrail-node for handling the guardrails
 def guardrail_node(state: AgentState) -> AgentState:
-    message = state["messages"][-1].content
+    message = state["user_input"]
 
     blocked, reason = is_suspicious_prompt(str(message))
 

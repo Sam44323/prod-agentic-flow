@@ -38,24 +38,36 @@ graph.add_node("guardrail_response", guardrail_response_node)
 graph.add_node("output_error", output_error_node)
 graph.add_node("output_guardrail", output_guardrail_node)
 
-# ── Flow ──────────────────────────────────────────────
+# ── Flow ───────────────────────────────────────────────────────────────
 #   START
 #     │
-#     ▼ route()
-#     ├── "llm" ────────────────────────────────────► llm_node ──► END
-#     ├── "weather" ─────────────────────────────────► weather_node ──► END
-#     └── "calculator_request"
-#           │
-#           ▼ approval_route()
-#           ├── "approval" ──► approval_node
-#           │                      │
-#           │                      ▼ post_approval_route()
-#           │                      ├── "calculator" ──► calculator_node ──► END
-#           │                      └── END
-#           └── "execute" ──► calculator_node ──► END
+#     ▼ guardrail_node
+#     │
+#     ▼ guardrail_router()
+#     ├── "guardrail_response" ──► guardrail_response_node ──► END (blocked)
+#     └── "route" ──► route_node  (passthrough)
+#                       │
+#                       ▼ route()
+#                       ├── "llm" ────────────────────► llm_node
+#                       ├── "weather" ────────────────► weather_node
+#                       └── "calculator_request"
+#                             │
+#                             ▼ approval_route()
+#                             ├── "approval" ──► approval_node
+#                             │                    │
+#                             │                    ▼ post_approval_route()
+#                             │                    ├── "calculator" ──► calculator_node
+#                             │                    └── END (cancelled)
+#                             └── "execute" ──► calculator_node
+#
+#   llm / weather / calculator ──► output_guardrail_node
+#                                       │
+#                                       ▼ output_router()
+#                                       ├── "__end__" ──► END
+#                                       └── "output_error" ──► output_error_node ──► END
 
-# START → route() dispatches to llm / weather / calculator_request
-graph.add_edge(START, "guardrail")  # or START -> load_memory -> guardrail
+# START → guardrail → guardrail_router (pass → route_node / fail → guardrail_response → END)
+graph.add_edge(START, "guardrail")
 
 graph.add_conditional_edges(
     "guardrail",
@@ -68,7 +80,8 @@ graph.add_conditional_edges(
 
 graph.add_edge("guardrail_response", END)
 
-
+# route_node → route() (llm / weather / calculator_request)
+# route_node is a passthrough (no handler) — just holds the conditional edges
 graph.add_conditional_edges(
     "route",
     route,
@@ -78,7 +91,8 @@ graph.add_conditional_edges(
         "weather": "weather",
     },
 )
-# calculator_request → approval_route(): skip approval or pause for HITL
+
+# calculator_request → approval_route: skip approval or pause for HITL
 graph.add_conditional_edges(
     "calculator_request",
     approval_route,
@@ -87,7 +101,8 @@ graph.add_conditional_edges(
         "execute": "calculator",
     },
 )
-# approval → post_approval_route(): proceed or cancel based on user's answer
+
+# approval → post_approval_route: proceed (calculator) or cancel (END)
 graph.add_conditional_edges(
     "approval",
     post_approval_route,
@@ -96,11 +111,13 @@ graph.add_conditional_edges(
         END: END,
     },
 )
-# terminal edges
+
+# All outputs run through output_guardrail for validation
 graph.add_edge("llm", "output_guardrail")
 graph.add_edge("weather", "output_guardrail")
 graph.add_edge("calculator", "output_guardrail")
 
+# output_guardrail → output_router: pass (END) or fail (output_error → END)
 graph.add_conditional_edges(
     "output_guardrail",
     output_router,
