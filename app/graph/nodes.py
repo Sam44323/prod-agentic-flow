@@ -9,6 +9,7 @@ from app.memory.fact_extractor import extract_facts
 from app.api.models import AgentResponse
 from app.memory.semantic_memory import SemanticMemory
 from langgraph.graph import END
+from app.tools.executor import execute_tool
 
 
 semantic_memory = SemanticMemory()
@@ -90,7 +91,7 @@ def llm_node(state: AgentState) -> AgentState:
             SystemMessage(content=f"Known facts about the user:\n{memory_context}"),
         )
 
-    response = generate(messages)
+    response = execute_tool(generate, messages)
 
     messages.append(AIMessage(content=response))
     state["messages"] = messages
@@ -113,7 +114,7 @@ def calculator_node(state: AgentState) -> AgentState:
 
     # try to evaluate the expression based on the input if routed by the router
     try:
-        response = calculator(expression)
+        response = execute_tool(calculator, expression)
         messages.append(
             AIMessage(content=f"{response}"),
         )
@@ -145,10 +146,7 @@ def weather_node(state: AgentState) -> AgentState:
     )
 
     try:
-        result = get_weather(
-            latitude=51.5074,
-            longitude=-0.1278,
-        )
+        result = execute_tool(get_weather, latitude=51.5074, longitude=-0.1278)
 
         messages.append(
             AIMessage(content=f"{result}"),
