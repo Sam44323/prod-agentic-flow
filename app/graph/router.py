@@ -22,6 +22,26 @@ def route(state: AgentState) -> str:
     return "llm"
 
 
+# planner-router
+def planner_router(state: AgentState) -> str:
+    """
+    Routes execution based on the planner's decision.
+    """
+
+    action = state.get("planner_action", "llm")
+
+    if action == "weather":
+        return "weather"
+
+    if action == "calculator":
+        return "calculator_request"
+
+    if action == "retrieve":
+        return "retrieve"
+
+    return "llm"
+
+
 def approval_route(state: AgentState) -> str:
     if state.get("approval_required", False):
         return "approval"

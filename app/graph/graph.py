@@ -16,7 +16,13 @@ from app.graph.nodes import (
     weather_node,
 )
 from app.graph.node.planner import planner_node
-from app.graph.router import approval_route, guardrail_router, route, output_router
+from app.graph.router import (
+    approval_route,
+    guardrail_router,
+    route,
+    output_router,
+    planner_router,
+)
 from app.graph.state import AgentState
 
 # checkpointer: for saving the graph-state which can be used to continue the flow (with things like HITL)
@@ -84,13 +90,17 @@ graph.add_edge("guardrail_response", END)
 
 # route_node → route() (llm / weather / calculator_request)
 # route_node is a passthrough (no handler) — just holds the conditional edges
+
+graph.add_edge("route", "planner")
+
 graph.add_conditional_edges(
-    "route",
-    route,
+    "planner",
+    planner_router,
     {
         "calculator_request": "calculator_request",
-        "llm": "llm",
         "weather": "weather",
+        "retrieve": "retrieve",
+        "llm": "llm",
     },
 )
 
