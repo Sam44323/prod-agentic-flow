@@ -35,9 +35,18 @@ requirements.txt   # Python deps
 pyrightconfig.json # Pyright-config
 ```
 
+## Build
+
+```bash
+python -m build
+```
+
+Generates a distributable `.tar.gz` and `.whl` in `dist/`. Requires `build` package (`pip install build`).
+
 ## Run
 
 ```bash
+pip install -e .     # install the project in editable mode
 uvicorn app.main:app --reload
 ```
 
