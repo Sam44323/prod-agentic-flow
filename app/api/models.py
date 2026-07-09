@@ -1,11 +1,22 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # request for the interaction of the api
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(
+        ...,
+        min_length=1,
+        max_length=4000,
+        description="Message to send to the model from the user",
+    )
+
+    thread_id: Optional[str] = Field(
+        min_length=1,
+        max_length=100,
+        description="Thread ID for resuming the flow",
+    )
 
 
 # response for the api
