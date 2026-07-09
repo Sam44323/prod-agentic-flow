@@ -37,7 +37,6 @@ def chat(request: ChatRequest):
     # in this we are thread_id to every execution so that we can use it a reference for resuming
     result = graph.invoke(initial_state, config=config)
 
-    # if there's a node/edge in the graph that requires an interruption, we'll return the interruption-info
     if "__interrupt__" in result:
         interrupt = result["__interrupt__"][0]
 
@@ -48,7 +47,7 @@ def chat(request: ChatRequest):
             approval_reason=interrupt.value["reason"],
         )
 
-    return ChatResponse(answer=result["final_answer"])
+    return ChatResponse(answer=result["messages"][-1].content)
 
 
 # route for the approval and resuming the graph

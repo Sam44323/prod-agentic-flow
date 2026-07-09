@@ -20,5 +20,9 @@ class AgentState(TypedDict):
     approval_granted: Optional[bool]
     approval_reason: str
 
+    # guardrails-state
+    guardrail_passed: bool
+    guardrail_reason: str
+
     # running-state for outputs
     final_answer: str

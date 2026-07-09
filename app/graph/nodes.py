@@ -12,6 +12,26 @@ from langgraph.graph import END
 semantic_memory = SemanticMemory()
 
 
+SUSPICIOUS_PATTERNS = [
+    "ignore previous instructions",
+    "ignore all previous instructions",
+    "system prompt",
+    "reveal your prompt",
+    "developer message",
+    "repeat your instructions",
+]
+
+
+def is_suspicious_prompt(message: str) -> tuple[bool, str]:
+    text = message.lower()
+
+    for pattern in SUSPICIOUS_PATTERNS:
+        if pattern in text:
+            return True, f"Matched pattern: {pattern}"
+
+    return False, ""
+
+
 # LLM-Node for query and response with the language-model
 def llm_node(state: AgentState) -> AgentState:
     print(state)
@@ -144,6 +164,7 @@ def approval_node(state: AgentState) -> AgentState:
     return state
 
 
+# Calculator-node for evaluating the expression
 def calculator_request_node(state: AgentState) -> AgentState:
     expression = state["user_input"]
 
@@ -158,7 +179,20 @@ def calculator_request_node(state: AgentState) -> AgentState:
     return state
 
 
+# Interruption-node for handling the interruption options
 def post_approval_route(state: AgentState) -> str:
     if state["approval_granted"]:
         return "calculator"
     return END
+
+
+# Guardrail-node for handling the guardrails
+def guardrail_node(state: AgentState) -> AgentState:
+    message = state["messages"][-1].content
+
+    blocked, reason = is_suspicious_prompt(str(message))
+
+    state["guardrail_passed"] = not blocked
+    state["guardrail_reason"] = reason
+
+    return state

@@ -1,6 +1,7 @@
 import re
 
 from app.graph.state import AgentState
+from typing import Literal
 
 
 def route(state: AgentState) -> str:
@@ -25,3 +26,12 @@ def approval_route(state: AgentState) -> str:
     if state.get("approval_required", False):
         return "approval"
     return "calculator"
+
+
+def guardrail_router(
+    state: AgentState,
+) -> Literal["route", "__end__"]:
+    if state["guardrail_passed"]:
+        return "route"
+
+    return "__end__"
