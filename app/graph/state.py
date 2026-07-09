@@ -33,3 +33,10 @@ class AgentState(TypedDict):
     tool_authorization_reason: NotRequired[str]
     # running-state for outputs
     final_answer: str
+
+    # retrieval
+    planner_action: str  # what the planner decided (answer, retrieve, etc.)
+    rewritten_query: str  # query post rewriting
+    retreived_documents: list[str]  # documents retrieved
+    retrieval_attemps: int  # number of attempts
+    retrieval_success: bool  # whether the retrieval was successful
