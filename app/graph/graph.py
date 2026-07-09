@@ -8,12 +8,14 @@ from app.graph.nodes import (
     calculator_node,
     calculator_request_node,
     guardrail_node,
+    output_error_node,
+    output_guardrail_node,
     guardrail_response_node,
     llm_node,
     post_approval_route,
     weather_node,
 )
-from app.graph.router import approval_route, guardrail_router, route
+from app.graph.router import approval_route, guardrail_router, route, output_router
 from app.graph.state import AgentState
 
 # checkpointer: for saving the graph-state which can be used to continue the flow (with things like HITL)
@@ -33,6 +35,8 @@ graph.add_node("approval", approval_node)
 graph.add_node("calculator_request", calculator_request_node)
 graph.add_node("guardrail", guardrail_node)
 graph.add_node("guardrail_response", guardrail_response_node)
+graph.add_node("output_error", output_error_node)
+graph.add_node("output_guardrail", output_guardrail_node)
 
 # ── Flow ──────────────────────────────────────────────
 #   START
@@ -93,9 +97,20 @@ graph.add_conditional_edges(
     },
 )
 # terminal edges
-graph.add_edge("llm", END)
-graph.add_edge("weather", END)
-graph.add_edge("calculator", END)
+graph.add_edge("llm", "output_guardrail")
+graph.add_edge("weather", "output_guardrail")
+graph.add_edge("calculator", "output_guardrail")
+
+graph.add_conditional_edges(
+    "output_guardrail",
+    output_router,
+    {
+        "__end__": END,
+        "output_error": "output_error",
+    },
+)
+
+graph.add_edge("output_error", END)
 
 
 # compiling the graph

@@ -32,6 +32,16 @@ def is_suspicious_prompt(message: str) -> tuple[bool, str]:
     return False, ""
 
 
+def validate_output(text: str) -> tuple[bool, str]:
+    if not text.strip():
+        return False, "Empty response"
+
+    if len(text) > 8000:
+        return False, "Response too large"
+
+    return True, ""
+
+
 # LLM-Node for query and response with the language-model
 def llm_node(state: AgentState) -> AgentState:
     print(state)
@@ -207,6 +217,25 @@ def guardrail_response_node(state: AgentState) -> AgentState:
                 "otherwise violate my operating policies."
             )
         )
+    )
+
+    return state
+
+
+def output_guardrail_node(state: AgentState) -> AgentState:
+    response = state["messages"][-1].content
+
+    valid, reason = validate_output(str(response))
+
+    state["output_valid"] = valid
+    state["output_validation_reason"] = reason
+
+    return state
+
+
+def output_error_node(state: AgentState) -> AgentState:
+    state["messages"].append(
+        AIMessage(content="Sorry, I couldn't generate a valid response.")
     )
 
     return state

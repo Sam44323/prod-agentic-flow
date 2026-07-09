@@ -35,3 +35,12 @@ def guardrail_router(
         return "route"
 
     return "guardrail_response"
+
+
+def output_router(
+    state: AgentState,
+) -> Literal["__end__", "output_error"]:
+    if state["output_valid"]:
+        return "__end__"
+
+    return "output_error"

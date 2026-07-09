@@ -24,5 +24,9 @@ class AgentState(TypedDict):
     guardrail_passed: bool
     guardrail_reason: str
 
+    # validation of output
+    output_valid: bool
+    output_validation_reason: str
+
     # running-state for outputs
     final_answer: str
