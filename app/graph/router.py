@@ -44,3 +44,12 @@ def output_router(
         return "__end__"
 
     return "output_error"
+
+
+def tool_authorization_router(
+    state: AgentState,
+) -> Literal["execute_tool", "tool_denied"]:
+    if state["tool_authorized"]:
+        return "execute_tool"
+
+    return "tool_denied"

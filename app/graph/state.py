@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict
+from typing import Optional, TypedDict, NotRequired
 from langchain_core.messages import BaseMessage
 
 
@@ -28,5 +28,8 @@ class AgentState(TypedDict):
     output_valid: bool
     output_validation_reason: str
 
+    # authorized-guard
+    tooL_authorized: NotRequired[bool]
+    tool_authorization_reason: NotRequired[str]
     # running-state for outputs
     final_answer: str

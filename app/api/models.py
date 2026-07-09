@@ -33,3 +33,8 @@ class ChatResponse(BaseModel):
 class ApprovalRequest(BaseModel):
     thread_id: str
     approved: bool
+
+
+# information from the agent, would be later used for validation
+class AgentResponse(BaseModel):
+    answer: str

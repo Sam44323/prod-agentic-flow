@@ -4,7 +4,9 @@ from app.llm.qwen import generate
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from app.tools.calculator import calculator
 from app.tools.weather import get_weather
+from pydantic import ValidationError
 from app.memory.fact_extractor import extract_facts
+from app.api.models import AgentResponse
 from app.memory.semantic_memory import SemanticMemory
 from langgraph.graph import END
 
@@ -21,6 +23,18 @@ SUSPICIOUS_PATTERNS = [
     "repeat your instructions",
 ]
 
+ALLOWED_TOOLS = {
+    "calculator",
+    "weather",
+}
+
+
+def authorize_tool(tool_name: str) -> tuple[bool, str]:
+    if tool_name not in ALLOWED_TOOLS:
+        return False, f"{tool_name} is not permitted."
+
+    return True, ""
+
 
 def is_suspicious_prompt(message: str) -> tuple[bool, str]:
     text = message.lower()
@@ -33,13 +47,11 @@ def is_suspicious_prompt(message: str) -> tuple[bool, str]:
 
 
 def validate_output(text: str) -> tuple[bool, str]:
-    if not text.strip():
-        return False, "Empty response"
-
-    if len(text) > 8000:
-        return False, "Response too large"
-
-    return True, ""
+    try:
+        AgentResponse(answer=text)
+        return True, ""
+    except ValidationError as e:
+        return False, str(e)
 
 
 # LLM-Node for query and response with the language-model
@@ -237,5 +249,16 @@ def output_error_node(state: AgentState) -> AgentState:
     state["messages"].append(
         AIMessage(content="Sorry, I couldn't generate a valid response.")
     )
+
+    return state
+
+
+def tool_authorization_node(state: AgentState) -> AgentState:
+    tool = state.get("tool_name")
+
+    authorized, reason = authorize_tool(tool)
+
+    state["tool_authorization"] = authorized
+    state["tool_authorization_reason"] = reason
 
     return state
