@@ -9,6 +9,7 @@ from app.graph.node.calculator_request import calculator_request_node
 from app.graph.node.guardrail import guardrail_node
 from app.graph.node.guardrail_response import guardrail_response_node
 from app.graph.node.llm import llm_node
+from app.graph.node.query_rewriter import query_rewriter
 from app.graph.node.output_error import output_error_node
 from app.graph.node.output_guardrail import output_guardrail_node
 from app.graph.node.planner import planner_node
@@ -45,6 +46,7 @@ graph.add_node("guardrail_response", guardrail_response_node)
 graph.add_node("output_error", output_error_node)
 graph.add_node("output_guardrail", output_guardrail_node)
 graph.add_node("retrieve", retriever_node)
+graph.add_node("query_rewriter", query_rewriter)
 
 # ── Flow ───────────────────────────────────────────────────────────────
 #   START
@@ -99,10 +101,13 @@ graph.add_conditional_edges(
     {
         "calculator_request": "calculator_request",
         "weather": "weather",
-        "retrieve": "retrieve",
+        "retrieve": "query_rewriter",
         "llm": "llm",
     },
 )
+
+# when query_rewriter finishes, execution always proceeds to the retrieve node for execution
+graph.add_edge("query_rewriter", "retrieve")
 
 # calculator_request → approval_route: skip approval or pause for HITL
 graph.add_conditional_edges(
