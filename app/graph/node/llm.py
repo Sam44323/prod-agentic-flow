@@ -4,8 +4,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from app.memory.fact_extractor import extract_facts
 from app.memory.semantic_memory import SemanticMemory
 from app.tools.executor import execute_tool
-
-semantic_memory = SemanticMemory()
+from app.graph.dependencies import semantic_memory
 
 
 def llm_node(state: AgentState) -> AgentState:

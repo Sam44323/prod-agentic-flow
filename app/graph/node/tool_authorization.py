@@ -1,7 +1,5 @@
 from app.graph.state import AgentState
-from app.guardrails.policy_engine import PolicyEngine
-
-policy_engine = PolicyEngine()
+from app.graph.dependencies import policy_engine
 
 
 def tool_authorization_node(state: AgentState) -> AgentState:
