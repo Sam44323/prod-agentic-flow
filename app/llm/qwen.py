@@ -1,16 +1,15 @@
 from langchain_ollama import ChatOllama
+from app.config import settings
 from langchain_core.messages import BaseMessage
 
-from app.config import MODEL_NAME, OLLAMA_BASE_URL
-
 llm = ChatOllama(
-    model=str(MODEL_NAME),
-    base_url=OLLAMA_BASE_URL,
+    model=str(settings.MODEL_NAME),
+    base_url=settings.OLLAMA_BASE_URL,
 )
 
 
 def generate(messages: list[BaseMessage]) -> str:
-    response = llm.invoke(messages)
+    response = llm.invoke(messages, timeout=settings.LLM_TIMEOUT)
     return str(response.content)
 
 

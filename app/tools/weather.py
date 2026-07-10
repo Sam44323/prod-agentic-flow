@@ -1,4 +1,5 @@
 import requests
+from app.config import settings
 
 
 def get_weather(latitude: float, longitude: float) -> str:
@@ -13,7 +14,7 @@ def get_weather(latitude: float, longitude: float) -> str:
         "&current=temperature_2m,wind_speed_10m"
     )
 
-    response = requests.get(url, timeout=10)
+    response = requests.get(url, timeout=settings.WEATHER_TIMEOUT)
     response.raise_for_status()
 
     data = response.json()

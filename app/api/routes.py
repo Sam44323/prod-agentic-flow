@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest):
+async def chat(request: ChatRequest):
     thread_id = str(uuid.uuid4())
 
     config: RunnableConfig = {
@@ -32,6 +32,10 @@ def chat(request: ChatRequest):
         "approval_required": False,
         "approval_granted": False,
         "approval_reason": "",
+        "guardrail_passed": False,
+        "guardrail_reason": "",
+        "output_valid": False,
+        "output_validation_reason": "",
     }
 
     # in this we are thread_id to every execution so that we can use it a reference for resuming
@@ -52,7 +56,7 @@ def chat(request: ChatRequest):
 
 # route for the approval and resuming the graph
 @router.post("/approve", response_model=ChatResponse)
-def approve(request: ApprovalRequest):
+async def approve(request: ApprovalRequest):
     config: RunnableConfig = {
         "configurable": {
             "thread_id": request.thread_id,

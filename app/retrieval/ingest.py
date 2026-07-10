@@ -1,4 +1,5 @@
 from pathlib import Path
+from app.config import settings
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -6,7 +7,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from app.retrieval.vectordb import vector_store
 
 # getting the data from the /data/documents directory (for now it is empty anyways)
-DATA_DIR = Path("data/documents")
+DATA_DIR = Path(settings.DOCUMENT_PATH)
 
 
 def load_documents() -> list[Document]:
