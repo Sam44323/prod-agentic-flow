@@ -42,3 +42,4 @@ class AgentState(TypedDict):
     retrieved_documents: NotRequired[list[str]]  # documents retrieved
     retrieval_attempts: NotRequired[int]  # number of attempts
     retrieval_success: NotRequired[bool]  # whether the retrieval was successful
+    retrieval_sufficient: NotRequired[bool]  # whether the retrieval was sufficient
