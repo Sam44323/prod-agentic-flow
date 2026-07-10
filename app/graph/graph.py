@@ -53,30 +53,43 @@ graph.add_node("retrieval_evaluator", retrieval_evaluator_node)
 # ── Flow ───────────────────────────────────────────────────────────────
 #   START
 #     │
-#     ▼ guardrail_node
+#     ▼ guardrail
 #     │
 #     ▼ guardrail_router()
-#     ├── "guardrail_response" ──► guardrail_response_node ──► END (blocked)
-#     └── "route" ──► route_node  (passthrough)
-#                       │
-#                       ▼ route()
-#                       ├── "llm" ────────────────────► llm_node
-#                       ├── "weather" ────────────────► weather_node
-#                       └── "calculator_request"
-#                             │
-#                             ▼ approval_route()
-#                             ├── "approval" ──► approval_node
-#                             │                    │
-#                             │                    ▼ post_approval_route()
-#                             │                    ├── "calculator" ──► calculator_node
-#                             │                    └── END (cancelled)
-#                             └── "execute" ──► calculator_node
+#     ├── "planner" ────────────────► planner
+#     │                                │
+#     │                                ▼ planner_router()
+#     │                                ├── "calculator_request" ──► calculator_request
+#     │                                │                                │
+#     │                                │                                ▼ approval_route()
+#     │                                │                                ├── "approval" ──► approval
+#     │                                │                                │                    │
+#     │                                │                                │                    ▼ post_approval_route()
+#     │                                │                                │                    ├── "calculator" ──► calculator
+#     │                                │                                │                    └── END
+#     │                                │                                └── "execute" ──► calculator
+#     │                                │
+#     │                                ├── "weather" ─────────────────► weather
+#     │                                │
+#     │                                ├── "retrieve" ───────────────► query_rewriter
+#     │                                │                                  │
+#     │                                │                                  ▼ retrieve
+#     │                                │                                  │
+#     │                                │                                  ▼ retrieval_evaluator
+#     │                                │                                  │
+#     │                                │                                  ▼ retrieval_router()
+#     │                                │                                  ├── "llm" ──► llm
+#     │                                │                                  └── "query_rewriter" ──► query_rewriter (loop)
+#     │                                │
+#     │                                └── "llm" ─────────────────────► llm
+#     │
+#     └── "guardrail_response" ──────► guardrail_response ──► END
 #
-#   llm / weather / calculator ──► output_guardrail_node
+#   llm / weather / calculator ──► output_guardrail
 #                                       │
 #                                       ▼ output_router()
 #                                       ├── "__end__" ──► END
-#                                       └── "output_error" ──► output_error_node ──► END
+#                                       └── "output_error" ──► output_error ──► END
 
 # START → guardrail → guardrail_router (pass → route_node / fail → guardrail_response → END)
 graph.add_edge(START, "guardrail")

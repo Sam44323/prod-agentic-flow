@@ -63,6 +63,50 @@ pyrightconfig.json
 requirements.txt
 ```
 
+## Flow
+
+```
+START
+  │
+  ▼ guardrail
+  │
+  ▼ guardrail_router()
+  ├── "planner" ────────────────► planner
+  │                                │
+  │                                ▼ planner_router()
+  │                                ├── "calculator_request" ──► calculator_request
+  │                                │                                │
+  │                                │                                ▼ approval_route()
+  │                                │                                ├── "approval" ──► approval
+  │                                │                                │                    │
+  │                                │                                │                    ▼ post_approval_route()
+  │                                │                                │                    ├── "calculator" ──► calculator
+  │                                │                                │                    └── END
+  │                                │                                └── "execute" ──► calculator
+  │                                │
+  │                                ├── "weather" ─────────────────► weather
+  │                                │
+  │                                ├── "retrieve" ───────────────► query_rewriter
+  │                                │                                  │
+  │                                │                                  ▼ retrieve
+  │                                │                                  │
+  │                                │                                  ▼ retrieval_evaluator
+  │                                │                                  │
+  │                                │                                  ▼ retrieval_router()
+  │                                │                                  ├── "llm" ──► llm
+  │                                │                                  └── "query_rewriter" ──► query_rewriter (loop)
+  │                                │
+  │                                └── "llm" ─────────────────────► llm
+  │
+  └── "guardrail_response" ──────► guardrail_response ──► END
+
+  llm / weather / calculator ──► output_guardrail
+                                      │
+                                      ▼ output_router()
+                                      ├── "__end__" ──► END
+                                      └── "output_error" ──► output_error ──► END
+```
+
 ## Build
 
 ```bash
