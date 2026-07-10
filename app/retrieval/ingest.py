@@ -1,5 +1,6 @@
 from pathlib import Path
 from app.config import settings
+from app.logger import logger
 
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -43,7 +44,7 @@ def ingest() -> None:
     # adding the chunks to the vector-db
     vector_store.add_documents(chunks)
 
-    print(f"Ingested {len(chunks)} chunks.")
+    logger.info(f"Added {len(documents)} documents to the vector-db.")
 
 
 if __name__ == "__main__":
