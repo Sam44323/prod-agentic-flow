@@ -85,17 +85,12 @@ graph.add_conditional_edges(
     "guardrail",
     guardrail_router,
     {
-        "route": "route",
+        "planner": "planner",
         "guardrail_response": "guardrail_response",
     },
 )
 
 graph.add_edge("guardrail_response", END)
-
-# route_node → route() (llm / weather / calculator_request)
-# route_node is a passthrough (no handler) — just holds the conditional edges
-
-graph.add_edge("route", "planner")
 
 graph.add_conditional_edges(
     "planner",

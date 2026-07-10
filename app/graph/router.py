@@ -6,24 +6,6 @@ from typing import Literal
 MAX_RETRIEVAL_ATTEMPTS = 3
 
 
-def route(state: AgentState) -> str:
-    """
-    Decide which node should execute next.
-    """
-
-    user_input = state["user_input"].strip().lower()
-
-    # Simple math-detection
-    if re.fullmatch(r"[0-9+\-*/().\s]+", user_input):
-        return "calculator_request"
-
-    # Weather-text detection
-    if "weather" in user_input:
-        return "weather"
-
-    return "llm"
-
-
 # planner-router
 def planner_router(state: AgentState) -> str:
     """
@@ -52,9 +34,9 @@ def approval_route(state: AgentState) -> str:
 
 def guardrail_router(
     state: AgentState,
-) -> Literal["route", "guardrail_response"]:
+) -> Literal["planner", "guardrail_response"]:
     if state["guardrail_passed"]:
-        return "route"
+        return "planner"
 
     return "guardrail_response"
 
