@@ -15,11 +15,12 @@ from app.graph.node.output_guardrail import output_guardrail_node
 from app.graph.node.planner import planner_node
 from app.graph.node.post_approval_route import post_approval_route
 from app.graph.node.retriever import retriever_node
+from app.graph.node.retriever_evaluator import retrieval_evaluator_node
 from app.graph.node.weather import weather_node
 from app.graph.router import (
     approval_route,
     guardrail_router,
-    route,
+    retrieval_router,
     output_router,
     planner_router,
 )
@@ -47,6 +48,7 @@ graph.add_node("output_error", output_error_node)
 graph.add_node("output_guardrail", output_guardrail_node)
 graph.add_node("retrieve", retriever_node)
 graph.add_node("query_rewriter", query_rewriter)
+graph.add_node("retrieval_evaluator", retrieval_evaluator_node)
 
 # ── Flow ───────────────────────────────────────────────────────────────
 #   START
@@ -133,7 +135,19 @@ graph.add_conditional_edges(
 graph.add_edge("llm", "output_guardrail")
 graph.add_edge("weather", "output_guardrail")
 graph.add_edge("calculator", "output_guardrail")
-graph.add_edge("retrieve", "llm")
+graph.add_edge(
+    "retrieve",
+    "retrieval_evaluator",
+)
+
+graph.add_conditional_edges(
+    "retrieval_evaluator",
+    retrieval_router,
+    {
+        "llm": "llm",
+        "query_rewriter": "query_rewriter",
+    },
+)
 
 # output_guardrail → output_router: pass (END) or fail (output_error → END)
 graph.add_conditional_edges(

@@ -3,6 +3,8 @@ import re
 from app.graph.state import AgentState
 from typing import Literal
 
+MAX_RETRIEVAL_ATTEMPTS = 3
+
 
 def route(state: AgentState) -> str:
     """
@@ -73,3 +75,15 @@ def tool_authorization_router(
         return "execute_tool"
 
     return "tool_denied"
+
+
+def retrieval_router(
+    state: AgentState,
+) -> Literal["llm", "query_rewriter"]:
+    if state.get("retrieval_sufficient", False):
+        return "llm"
+
+    if state.get("retrieval_attempts", 0) >= MAX_RETRIEVAL_ATTEMPTS:
+        return "llm"
+
+    return "query_rewriter"
